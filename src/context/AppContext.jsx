@@ -5,7 +5,7 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [apiKey, setApiKeyState] = useState(() => {
-    return getStoredApiKey() || localStorage.getItem('legal_max_api_key') || '';
+    return getStoredApiKey() || localStorage.getItem('legal_max_api_key') || (import.meta.env.VITE_GEMINI_API_KEY || '');
   });
 
   const [theme, setTheme] = useState(() => {
