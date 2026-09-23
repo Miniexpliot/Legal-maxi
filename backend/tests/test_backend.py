@@ -46,14 +46,15 @@ def test_resolve_api_key_header_priority():
     resolved = resolve_api_key(header_key)
     assert resolved == header_key
 
-@pytest.mark.asyncio
-async def test_gemini_service_offline_fallback():
-    result = await gemini_service.generate_analysis(
+import asyncio
+
+def test_gemini_service_offline_fallback():
+    result = asyncio.run(gemini_service.generate_analysis(
         task_type="simplify",
         document_text="Confidential agreement between parties.",
         prompt="Simplify this",
         api_key=None
-    )
+    ))
 
     assert result["success"] is True
     assert "Plain-English Simplification" in result["content"]
