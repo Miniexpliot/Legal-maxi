@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { BookOpen, Search, Sparkles } from 'lucide-react';
 import { LEGAL_GLOSSARY } from '../utils/constants';
 import { useApp } from '../context/AppContext';
-import { generateLegalAnalysis } from '../services/aiEngine';
+import { analyzeDocument } from '../services/apiClient';
 import DisclaimerBanner from '../components/DisclaimerBanner';
 
 const LegalGlossary = () => {
-  const { apiKey } = useApp();
+  const { autoRedactPii } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
   const [customTerm, setCustomTerm] = useState('');
@@ -28,13 +28,13 @@ const LegalGlossary = () => {
     setCustomExplanation('');
 
     try {
-      const res = await generateLegalAnalysis({
-        prompt: `Explain the following legal term or phrase in ELI5 plain English with practical everyday examples: "${customTerm}"`,
+      const res = await analyzeDocument({
+        prompt: `Explain the following legal term or clause in ELI5 plain English with practical everyday examples: "${customTerm}"`,
         documentText: '',
-        apiKey,
-        taskType: 'simplify'
+        taskType: 'simplify',
+        redactPii: autoRedactPii
       });
-      setCustomExplanation(res);
+      setCustomExplanation(res.content);
     } catch (err) {
       console.error(err);
     } finally {

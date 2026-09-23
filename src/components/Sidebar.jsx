@@ -33,7 +33,7 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  const { theme, toggleTheme, apiKey } = useApp();
+  const { theme, toggleTheme, apiKey, backendStatus } = useApp();
 
   return (
     <aside style={{ width: '270px', minWidth: '270px' }} className="glass-panel h-screen flex flex-col justify-between p-4 border-r border-slate-800 bg-slate-950/80">
@@ -51,17 +51,29 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* API Key Status Indicator */}
-        <div className="px-3 py-2 mb-4 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
-          <span className="flex items-center gap-2 text-slate-400">
-            <Key className="w-3.5 h-3.5 text-indigo-400" />
-            Gemini API
-          </span>
-          {apiKey ? (
-            <span className="badge badge-emerald py-0.5 px-2 text-[10px]">Connected</span>
-          ) : (
-            <span className="badge badge-amber py-0.5 px-2 text-[10px]">Demo Mode</span>
-          )}
+        {/* API Key & Backend Status Indicators */}
+        <div className="space-y-1.5 mb-4">
+          <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
+            <span className="flex items-center gap-2 text-slate-400">
+              <Key className="w-3.5 h-3.5 text-indigo-400" />
+              Gemini API
+            </span>
+            {apiKey ? (
+              <span className="badge badge-emerald py-0.5 px-2 text-[10px]">Connected</span>
+            ) : (
+              <span className="badge badge-amber py-0.5 px-2 text-[10px]">Demo Mode</span>
+            )}
+          </div>
+
+          <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
+            <span className="flex items-center gap-2 text-slate-400">
+              <span className={`w-2 h-2 rounded-full ${backendStatus?.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+              FastAPI Server
+            </span>
+            <span className={`text-[10px] font-mono ${backendStatus?.online ? 'text-emerald-400' : 'text-slate-400'}`}>
+              {backendStatus?.online ? 'Online' : 'Offline'}
+            </span>
+          </div>
         </div>
 
         {/* Nav Links */}

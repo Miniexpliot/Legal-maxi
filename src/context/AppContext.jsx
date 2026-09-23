@@ -1,15 +1,27 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getStoredApiKey, setStoredApiKey, checkBackendHealth } from '../services/apiClient';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [apiKey, setApiKey] = useState(() => {
-    return localStorage.getItem('legal_max_api_key') || '';
+  const [apiKey, setApiKeyState] = useState(() => {
+    return getStoredApiKey() || localStorage.getItem('legal_max_api_key') || '';
   });
 
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('legal_max_theme') || 'dark';
   });
+
+  const [backendStatus, setBackendStatus] = useState({
+    online: false,
+    checked: false,
+    service: 'Checking...',
+    version: ''
+  });
+
+  const [readingLevel, setReadingLevel] = useState('executive'); // 'eli5', 'executive', 'paralegal'
+  const [autoRedactPii, setAutoRedactPii] = useState(true);
+  const [activeChecklist, setActiveChecklist] = useState({});
 
   const [documents, setDocuments] = useState(() => {
     const saved = localStorage.getItem('legal_max_documents');
@@ -44,15 +56,41 @@ This Agreement shall be governed by and construed in accordance with the laws of
 
 6. LIQUIDATED DAMAGES & INJUNCTIVE RELIEF
 In the event of a breach by Receiving Party, Receiving Party agrees to pay liquidated damages of $250,000 without requirement of proof of actual harm. Furthermore, Disclosing Party shall be entitled to seek injunctive relief without posting a bond.`
+      },
+      {
+        id: 'sample-freelance-2',
+        name: 'Independent Contractor Agreement.txt',
+        size: '3.8 KB',
+        type: 'text/plain',
+        uploadDate: new Date().toISOString(),
+        text: `INDEPENDENT CONTRACTOR AGREEMENT
+
+This Independent Contractor Agreement is entered into by Client Co and Freelancer Pro.
+1. SERVICES: Freelancer shall deliver Full-Stack Application Engineering services.
+2. COMPENSATION: Fixed milestone payment of $12,500 payable net 15 days upon milestone verification.
+3. INTELLECTUAL PROPERTY: All deliverables belong exclusively to Client upon full receipt of final payment.
+4. TERMINATION: Either party may terminate with 14 days written notice. Client pays for all work approved prior to termination.
+5. LIABILITY: Maximum aggregate liability of Contractor is limited to total fees received under this agreement.`
       }
     ];
   });
 
   const [activeDocId, setActiveDocId] = useState('sample-nda-1');
 
+  const setApiKey = (key) => {
+    setApiKeyState(key);
+    setStoredApiKey(key);
+    localStorage.setItem('legal_max_api_key', key);
+  };
+
+  const refreshBackendStatus = async () => {
+    const status = await checkBackendHealth();
+    setBackendStatus({ checked: true, ...status });
+  };
+
   useEffect(() => {
-    localStorage.setItem('legal_max_api_key', apiKey);
-  }, [apiKey]);
+    refreshBackendStatus();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('legal_max_theme', theme);
@@ -82,6 +120,13 @@ In the event of a breach by Receiving Party, Receiving Party agrees to pay liqui
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  const toggleChecklistItem = (id) => {
+    setActiveChecklist(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
   return (
     <AppContext.Provider value={{
       apiKey,
@@ -93,7 +138,15 @@ In the event of a breach by Receiving Party, Receiving Party agrees to pay liqui
       deleteDocument,
       activeDocId,
       setActiveDocId,
-      activeDocument
+      activeDocument,
+      backendStatus,
+      refreshBackendStatus,
+      readingLevel,
+      setReadingLevel,
+      autoRedactPii,
+      setAutoRedactPii,
+      activeChecklist,
+      toggleChecklistItem
     }}>
       {children}
     </AppContext.Provider>
