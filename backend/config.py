@@ -9,10 +9,10 @@ if backend_env.exists():
 load_dotenv()
 
 class Settings:
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", 5000))
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    CORS_ORIGIN: str = os.getenv("CORS_ORIGIN", "http://localhost:5173")
+    CORS_ORIGIN: str = os.getenv("CORS_ORIGIN", "*")
     DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gemini-1.5-flash")
 
 settings = Settings()

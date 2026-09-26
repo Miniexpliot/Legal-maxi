@@ -14,15 +14,21 @@ app = FastAPI(
 
 # CORS Middleware (OWASP Security standard)
 origins = [
-    settings.CORS_ORIGIN,
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:3000"
+    "http://localhost:3000",
 ]
+if settings.CORS_ORIGIN and settings.CORS_ORIGIN != "*":
+    for o in settings.CORS_ORIGIN.split(","):
+        if o.strip() and o.strip() not in origins:
+            origins.append(o.strip())
+else:
+    origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permits flexible local dev while supporting reverse proxies
+    allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

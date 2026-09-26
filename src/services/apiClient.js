@@ -6,7 +6,15 @@ import { generateLegalAnalysis } from './aiEngine';
  * Sends user-configured Gemini API Key in 'X-Gemini-Key' header when available.
  */
 
-const API_BASE = '/api';
+// Dynamic API Base URL: supports production backend (e.g., Render) and local Vite proxy fallback
+const getApiBase = () => {
+  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+  if (!envUrl) return '/api';
+  const clean = envUrl.replace(/\/$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
+const API_BASE = getApiBase();
 
 export const getStoredApiKey = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
