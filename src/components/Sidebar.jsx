@@ -32,7 +32,7 @@ const navItems = [
 ];
 
 const Sidebar = ({ mobileOpen, onClose }) => {
-  const { theme, toggleTheme, apiKey } = useApp();
+  const { theme, toggleTheme, apiKey, isLiveAi } = useApp();
 
   return (
     <>
@@ -88,12 +88,16 @@ const Sidebar = ({ mobileOpen, onClose }) => {
             </div>
 
             <div className="px-3 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
-              <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
+              <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
                 Gemini AI
               </span>
-              <span className="badge-pill text-[10px] font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800">
-                {apiKey ? 'Active' : 'Demo Mode'}
+              <span className={`badge-pill text-[10px] font-semibold ${
+                isLiveAi
+                  ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800'
+                  : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800'
+              }`}>
+                {isLiveAi ? 'Active (Live AI)' : 'Demo Mode'}
               </span>
             </div>
           </div>

@@ -101,43 +101,45 @@ const ContractComparator = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-heading font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-purple-600 dark:text-purple-400">
               <GitCompare className="w-4 h-4" />
             </div>
-            Contract Comparator & Redline Intelligence
+            Contract Comparator &amp; Redline Intelligence
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Side-by-side textual diffing, semantic liability shifts, and counter-clause negotiation advice.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={loadSamplePair}
-            className={`btn-secondary text-xs py-2 px-3.5 flex items-center gap-2 rounded-xl transition-all shadow-xs ${
+            className={`whitespace-nowrap text-xs font-semibold py-2.5 px-4 flex items-center gap-2 rounded-xl transition-all shadow-sm ${
               justLoadedSample 
-                ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40' 
-                : 'hover:border-indigo-400'
+                ? 'border border-emerald-500 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 ring-1 ring-emerald-400' 
+                : 'text-purple-700 dark:text-purple-300 bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 hover:border-purple-400 hover:bg-purple-100/70'
             }`}
+            title="Load standard vs revised sample agreements"
           >
             {justLoadedSample ? (
               <>
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span className="font-semibold">Sample Pair Loaded!</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span>Sample Pair Loaded!</span>
               </>
             ) : (
               <>
-                <RefreshCw className="w-3.5 h-3.5 text-indigo-500" />
+                <RefreshCw className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                 <span>Load Active Sample Pair</span>
               </>
             )}
           </button>
-          <DisclaimerBanner compact />
         </div>
       </div>
+
+      <DisclaimerBanner />
 
       {quotaExhausted && (
         <QuotaExceededBanner onKeyAdded={() => handleCompare()} />

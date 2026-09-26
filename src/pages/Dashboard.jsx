@@ -77,7 +77,7 @@ const coreWorkflows = [
 ];
 
 const Dashboard = () => {
-  const { documents, activeDocument, setActiveDocId, addDocument, apiKey } = useApp();
+  const { documents, activeDocument, setActiveDocId, addDocument, apiKey, isLiveAi } = useApp();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
 
@@ -114,8 +114,12 @@ const Dashboard = () => {
               <span>Gemini AI</span>
             </div>
           </div>
-          <span className="badge-pill text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800/60">
-            {apiKey ? 'Real-Time' : 'Demo Active'}
+          <span className={`badge-pill text-[10px] font-semibold ${
+            isLiveAi
+              ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800/60'
+              : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800/60'
+          }`}>
+            {isLiveAi ? 'Real-Time Active' : 'Demo Mode'}
           </span>
         </div>
 

@@ -6,15 +6,30 @@ import { generateLegalAnalysis } from './aiEngine';
  * Sends user-configured Gemini API Key in 'X-Gemini-Key' header when available.
  */
 
-// Dynamic API Base URL: supports production backend (e.g., Render) and local Vite proxy fallback
-const getApiBase = () => {
+// Production Render Cloud Backend URL
+const PROD_API_URL = 'https://legal-maxi.onrender.com/api';
+
+const resolveInitialBase = () => {
   const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+  if (typeof window !== 'undefined') {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocal) {
+      if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+        const clean = envUrl.replace(/\/$/, '');
+        return clean.endsWith('/api') ? clean : `${clean}/api`;
+      }
+      return PROD_API_URL;
+    }
+  }
   if (!envUrl) return '/api';
   const clean = envUrl.replace(/\/$/, '');
   return clean.endsWith('/api') ? clean : `${clean}/api`;
 };
 
-const API_BASE = getApiBase();
+let currentApiBase = resolveInitialBase();
+
+export const getApiBase = () => currentApiBase;
+export const setApiBase = (url) => { currentApiBase = url; };
 
 export const getStoredApiKey = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
@@ -47,22 +62,42 @@ const getAuthHeaders = () => {
  */
 export const checkBackendHealth = async () => {
   try {
-    const res = await fetch(`${API_BASE}/health`, {
+    const res = await fetch(`${getApiBase()}/health`, {
       headers: getAuthHeaders(),
-      signal: AbortSignal.timeout(12000)
+      signal: AbortSignal.timeout(6000)
     });
-    if (!res.ok) throw new Error('Backend health check returned non-200');
-    const data = await res.json();
-    return { online: true, ...data };
+    if (res.ok) {
+      const data = await res.json();
+      return { online: true, ...data };
+    }
   } catch (err) {
-    return {
-      online: false,
-      service: 'In-Browser Client Mode',
-      version: '1.0.0-client',
-      env_key_configured: false,
-      error: err.message
-    };
+    console.info(`Primary health check at ${getApiBase()} failed:`, err.message);
   }
+
+  // Automatic production Render fallback if primary failed
+  if (getApiBase() !== PROD_API_URL) {
+    try {
+      console.info(`Attempting fallback to production Render backend: ${PROD_API_URL}`);
+      const res = await fetch(`${PROD_API_URL}/health`, {
+        headers: getAuthHeaders(),
+        signal: AbortSignal.timeout(8000)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setApiBase(PROD_API_URL);
+        return { online: true, ...data };
+      }
+    } catch (err) {
+      console.info('Production Render backend check also failed:', err.message);
+    }
+  }
+
+  return {
+    online: false,
+    service: 'In-Browser Client Mode',
+    version: '1.0.0-client',
+    env_key_configured: false
+  };
 };
 
 /**
@@ -73,7 +108,7 @@ export const analyzeDocument = async ({ taskType, documentText, prompt, model = 
 
   // Try Backend first
   try {
-    const res = await fetch(`${API_BASE}/analyze`, {
+    const res = await fetch(`${getApiBase()}/analyze`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -157,7 +192,7 @@ export const compareContracts = async ({ documentA, documentB, prompt }) => {
   const userApiKey = getStoredApiKey();
 
   try {
-    const res = await fetch(`${API_BASE}/compare`, {
+    const res = await fetch(`${getApiBase()}/compare`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -236,7 +271,7 @@ export const askLegalQuestion = async ({ documentText, question }) => {
   const userApiKey = getStoredApiKey();
 
   try {
-    const res = await fetch(`${API_BASE}/qa`, {
+    const res = await fetch(`${getApiBase()}/qa`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -309,7 +344,7 @@ export const askLegalQuestion = async ({ documentText, question }) => {
  */
 export const redactSensitivePII = async (text) => {
   try {
-    const res = await fetch(`${API_BASE}/redact-pii`, {
+    const res = await fetch(`${getApiBase()}/redact-pii`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ text }),

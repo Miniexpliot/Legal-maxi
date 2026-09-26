@@ -7,6 +7,7 @@ const Settings = () => {
   const {
     apiKey,
     setApiKey,
+    isLiveAi,
     documents,
     readingLevel,
     setReadingLevel,
@@ -136,6 +137,10 @@ const Settings = () => {
           {apiKey ? (
             <span className="badge-pill text-xs font-semibold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800">
               Personal Key Active
+            </span>
+          ) : isLiveAi ? (
+            <span className="badge-pill text-xs font-semibold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800">
+              Cloud Gemini API Active
             </span>
           ) : (
             <span className="badge-pill text-xs font-semibold text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800">

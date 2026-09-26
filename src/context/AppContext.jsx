@@ -129,10 +129,17 @@ This Independent Contractor Agreement is entered into by Client Co and Freelance
     }));
   };
 
+  const isLiveAi = Boolean(
+    (apiKey && apiKey.length > 10) || 
+    backendStatus.env_key_configured || 
+    backendStatus.online
+  );
+
   return (
     <AppContext.Provider value={{
       apiKey,
       setApiKey,
+      isLiveAi,
       theme,
       toggleTheme,
       documents,
