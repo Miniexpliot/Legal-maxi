@@ -84,17 +84,21 @@ ${prompt}`;
 
   // Check if real API Key exists
   if (apiKey && apiKey.trim().length > 10) {
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+    for (const modelName of candidateModels) {
+      try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
 
-      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-      const result = await model.generateContent(fullPrompt);
-      const response = await result.response;
-      return response.text();
-    } catch (err) {
-      console.warn("Gemini API call failed, using intelligent analysis fallback:", err);
-      // Fallback below
+        const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+        const result = await model.generateContent(fullPrompt);
+        const response = await result.response;
+        if (response && response.text()) {
+          return response.text();
+        }
+      } catch (err) {
+        console.warn(`Client-side Gemini API call with ${modelName} failed:`, err.message);
+      }
     }
   }
 

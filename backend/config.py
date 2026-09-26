@@ -13,7 +13,7 @@ class Settings:
     PORT: int = int(os.getenv("PORT", 5000))
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     CORS_ORIGIN: str = os.getenv("CORS_ORIGIN", "*")
-    DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gemini-1.5-flash")
+    DEFAULT_MODEL: str = os.getenv("DEFAULT_MODEL", "gemini-flash-latest")
 
 settings = Settings()
 

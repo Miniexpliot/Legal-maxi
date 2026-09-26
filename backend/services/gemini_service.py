@@ -28,7 +28,7 @@ CRITICAL RULES & ETHICAL GUIDELINES:
         document_text: str,
         prompt: Optional[str] = None,
         api_key: Optional[str] = None,
-        model_name: str = "gemini-1.5-flash",
+        model_name: str = "gemini-flash-latest",
         redact_pii: bool = True
     ) -> Dict[str, Any]:
         # 1. PII Redaction
@@ -38,24 +38,40 @@ CRITICAL RULES & ETHICAL GUIDELINES:
         user_prompt = cls._build_task_prompt(task_type, scrubbed_doc, prompt)
 
         # 3. Call Gemini if API Key is configured
+        last_error = None
         if api_key and len(api_key.strip()) > 10:
-            try:
-                import google.generativeai as genai
-                genai.configure(api_key=api_key.strip())
-                model = genai.GenerativeModel(
-                    model_name=model_name,
-                    system_instruction=cls.SYSTEM_PROMPT
-                )
-                response = model.generate_content(user_prompt)
-                return {
-                    "success": True,
-                    "content": response.text,
-                    "model": model_name,
-                    "is_live_ai": True,
-                    "pii_redacted": pii_stats
-                }
-            except Exception as e:
-                logger.warning(f"Gemini API invocation error: {e}. Falling back to deterministic analysis.")
+            candidate_models = [
+                model_name,
+                "gemini-flash-latest",
+                "gemini-2.5-flash",
+                "gemini-1.5-flash",
+                "gemini-pro-latest"
+            ]
+            models_to_try = []
+            for m in candidate_models:
+                if m and m not in models_to_try:
+                    models_to_try.append(m)
+
+            for try_model in models_to_try:
+                try:
+                    import google.generativeai as genai
+                    genai.configure(api_key=api_key.strip())
+                    model = genai.GenerativeModel(
+                        model_name=try_model,
+                        system_instruction=cls.SYSTEM_PROMPT
+                    )
+                    response = model.generate_content(user_prompt)
+                    if response and response.text:
+                        return {
+                            "success": True,
+                            "content": response.text,
+                            "model": try_model,
+                            "is_live_ai": True,
+                            "pii_redacted": pii_stats
+                        }
+                except Exception as e:
+                    last_error = str(e)
+                    logger.warning(f"Gemini API model {try_model} failed: {e}. Trying next model...")
 
         # 4. Fallback generator (ensures zero outage even without API key)
         fallback_content = cls._get_deterministic_fallback(task_type, scrubbed_doc, prompt)
@@ -64,7 +80,8 @@ CRITICAL RULES & ETHICAL GUIDELINES:
             "content": fallback_content,
             "model": "legal-max-expert-fallback",
             "is_live_ai": False,
-            "pii_redacted": pii_stats
+            "pii_redacted": pii_stats,
+            "api_error": last_error
         }
 
     @staticmethod
