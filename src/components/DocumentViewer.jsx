@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, Search, Copy, Check } from 'lucide-react';
+import { FileText, Search, Copy, Check, AlertTriangle } from 'lucide-react';
+import { validateLegalDocument } from '../utils/legalValidator';
 
 const DocumentViewer = ({ document, height = "400px" }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,6 +20,8 @@ const DocumentViewer = ({ document, height = "400px" }) => {
       </div>
     );
   }
+
+  const validation = validateLegalDocument(document.text, document.name);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(document.text);
@@ -83,6 +86,19 @@ const DocumentViewer = ({ document, height = "400px" }) => {
           </button>
         </div>
       </div>
+
+      {/* Non-Legal Document Notification Banner */}
+      {!validation.isLegal && (
+        <div className="px-4 py-2 bg-amber-500/10 dark:bg-amber-950/40 border-b border-amber-300/80 dark:border-amber-500/40 flex items-center justify-between gap-2 text-[11px] text-amber-900 dark:text-amber-200">
+          <div className="flex items-center gap-1.5 font-medium">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span><strong>Notice:</strong> {validation.detectedType} detected. This is not a legal contract.</span>
+          </div>
+          <span className="badge-pill text-[9px] font-bold text-amber-800 dark:text-amber-200 bg-amber-100/90 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700 shrink-0">
+            Non-Contract
+          </span>
+        </div>
+      )}
 
       {/* Document Text Body - Readable in both Light & Dark */}
       <div className="p-4 overflow-y-auto font-mono text-xs text-slate-800 dark:text-slate-200 bg-slate-50/40 dark:bg-slate-950/50 leading-relaxed whitespace-pre-wrap flex-1 select-text">

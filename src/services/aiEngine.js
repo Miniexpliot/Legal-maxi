@@ -1,18 +1,48 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { truncateText } from '../utils/security';
+import { validateLegalDocument, getNonLegalDocumentNotice } from '../utils/legalValidator';
 
 /**
  * AI Engine for Legal-Max
  * Handles API calls to Gemini or provides structured fallback analysis.
+ * Enforces strict legal document verification to avoid processing non-legal content (syllabi, marksheets, code, etc.).
  */
 
 export const generateLegalAnalysis = async ({ prompt, documentText, apiKey, taskType = 'simplify' }) => {
   const sanitizedDoc = truncateText(documentText || '');
 
+  // 1. Mandatory Upfront Legal Document Validation
+  if (['simplify', 'scan', 'summary', 'compliance'].includes(taskType) && sanitizedDoc) {
+    const validation = validateLegalDocument(sanitizedDoc);
+    if (!validation.isLegal) {
+      return getNonLegalDocumentNotice(validation);
+    }
+  } else if (taskType === 'compare' && sanitizedDoc) {
+    const parts = sanitizedDoc.split('=== VS ===');
+    const docA = (parts[0] || '').trim();
+    const docB = (parts[1] || '').trim();
+    const valA = validateLegalDocument(docA, 'Document A');
+    const valB = validateLegalDocument(docB, 'Document B');
+    if (!valA.isLegal) {
+      return getNonLegalDocumentNotice(valA, 'Document A');
+    }
+    if (!valB.isLegal) {
+      return getNonLegalDocumentNotice(valB, 'Document B');
+    }
+  }
+
   // System instructions per task type
   let systemPrompt = `You are Legal-Max, an advanced GenAI Legal Information Assistant. 
 Your goal is to simplify, analyze, compare, and explain legal documents into accessible, clear, accurate English.
-IMPORTANT RULES:
+
+MANDATORY FIRST RULE - LEGAL INSTRUMENT VALIDATION:
+Check if the provided document is genuinely a legal instrument (e.g. contract, agreement, court filing, terms of service, privacy policy, legal notice, statute).
+If the document is NOT a legal document (for example, if it is a school/university syllabus, academic marksheet, homework, code snippet, recipe, or personal notes):
+DO NOT hallucinate or fabricate legal clauses or contract breaches!
+Instead, return:
+"## ⚠️ Non-Legal Document Detected\n\n**Detected Content Type:** [Identify content, e.g. Academic Syllabus / Course Curriculum / Marksheet]\n\n**Notice:** This document does not contain legally binding clauses, contractual obligations, or statutory provisions. Legal-Max is specialized exclusively for legal contracts, agreements, policies, and regulations.\n\n👉 **Recommended Action:** Please upload a valid legal agreement (such as an NDA, employment agreement, commercial lease, or terms of service) to proceed."
+
+OTHER RULES:
 1. Always state key points clearly with headings, bullet points, and markdown.
 2. Emphasize obligations, financial penalties, hidden liabilities, and critical dates.
 3. Always include a short mandatory disclaimer note at the end ("This summary is for informational purposes only and does not constitute legal advice.").`;
@@ -113,6 +143,13 @@ ${prompt}`;
 
 // Fallback logic providing rich demo outputs when offline or no API key
 function getFallbackAnalysis(taskType, docText, prompt) {
+  if (docText && ['simplify', 'scan', 'summary', 'compliance'].includes(taskType)) {
+    const val = validateLegalDocument(docText);
+    if (!val.isLegal) {
+      return getNonLegalDocumentNotice(val);
+    }
+  }
+
   const docPreview = docText ? docText.substring(0, 300) : 'Sample Document';
 
   if (taskType === 'simplify') {

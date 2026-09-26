@@ -4,6 +4,7 @@ from typing import Optional
 from ..config import resolve_api_key
 from ..services.gemini_service import gemini_service
 from ..services.redline_engine import redline_engine
+from ..services.legal_validator import validate_legal_document, get_non_legal_notice
 
 router = APIRouter(prefix="/api", tags=["Contract Comparison"])
 
@@ -17,6 +18,27 @@ class CompareRequest(BaseModel):
 async def compare_contracts(req: CompareRequest, x_gemini_key: Optional[str] = Header(None)):
     if not req.document_a.strip() or not req.document_b.strip():
         raise HTTPException(status_code=400, detail="Both document_a and document_b are required for comparison.")
+
+    # 0. Legal Document Validation
+    is_legal_a, type_a, reason_a = validate_legal_document(req.document_a)
+    if not is_legal_a:
+        return {
+            "success": True,
+            "diff_metrics": {"similarity_percentage": 0, "stats": {"additions": 0, "deletions": 0, "unchanged": 0}},
+            "ai_analysis": get_non_legal_notice(type_a, reason_a or "Academic/non-legal content", "Document A (Baseline)"),
+            "is_live_ai": False,
+            "is_valid_legal": False
+        }
+
+    is_legal_b, type_b, reason_b = validate_legal_document(req.document_b)
+    if not is_legal_b:
+        return {
+            "success": True,
+            "diff_metrics": {"similarity_percentage": 0, "stats": {"additions": 0, "deletions": 0, "unchanged": 0}},
+            "ai_analysis": get_non_legal_notice(type_b, reason_b or "Academic/non-legal content", "Document B (Counterparty Revisions)"),
+            "is_live_ai": False,
+            "is_valid_legal": False
+        }
 
     # 1. Structural and textual diff
     diff_data = redline_engine.compute_diff(req.document_a, req.document_b)

@@ -1,6 +1,7 @@
 import logging
 from typing import Optional, Dict, Any
 from .pii_scrubber import pii_scrubber
+from .legal_validator import validate_legal_document, get_non_legal_notice
 
 logger = logging.getLogger(__name__)
 
@@ -8,12 +9,20 @@ class GeminiService:
     """
     Core GenAI Legal Intelligence service powered by Google Gemini.
     Provides rigorous legal system prompts, citation grounding, and intelligent offline fallbacks.
+    Enforces strict legal document verification to avoid processing non-legal content (syllabi, marksheets, code, etc.).
     """
 
     SYSTEM_PROMPT = """You are Legal-Max, an advanced GenAI Legal Information Assistant.
 Your mission is to make complex legal documents and legal concepts universally accessible, clear, and actionable.
 
 CRITICAL RULES & ETHICAL GUIDELINES:
+0. MANDATORY LEGAL DOCUMENT VALIDATION:
+   Examine whether the provided document is actually a legal document (e.g. contract, agreement, court filing, statute, terms of service, privacy policy, legal notice).
+   If the document is NOT a legal document (for example, if it is a school/college syllabus, student marksheet, study material, computer code, recipe, or homework):
+   You MUST NOT invent or hallucinate legal clauses, liabilities, damages, or breach terms!
+   Immediately return:
+   "## ⚠️ Non-Legal Document Detected\n\n**Detected Content Type:** [Identify actual content, e.g. Academic Syllabus / University Course Outline / Marksheet]\n\n**Notice:** This document contains educational, technical, or personal text without legally binding clauses, contractual covenants, or statutory obligations. Legal-Max is specialized exclusively for legal agreements and contracts.\n\n👉 **Recommended Action:** Please upload a valid legal document (such as an NDA, employment agreement, commercial lease, or terms of service) to proceed with legal analysis."
+
 1. INFORMATIONAL ONLY: Always emphasize that this output is for educational and informational assistance, and does not replace professional legal advice.
 2. CITATION GROUNDING: Always cite specific clause numbers, section headings, or line quotes from the provided text to support conclusions.
 3. RISK TRANSPARENCY: Highlight high-risk liabilities, liquidated damages, unilateral rights, non-competes, and strict indemnities.
@@ -31,10 +40,23 @@ CRITICAL RULES & ETHICAL GUIDELINES:
         model_name: str = "gemini-flash-latest",
         redact_pii: bool = True
     ) -> Dict[str, Any]:
-        # 1. PII Redaction
+        # 1. Upfront Legal Document Validation
+        if task_type in ["simplify", "scan", "summary", "compliance"] and document_text:
+            is_legal, detected_type, failure_reason = validate_legal_document(document_text)
+            if not is_legal:
+                notice = get_non_legal_notice(detected_type, failure_reason or "Non-legal content")
+                return {
+                    "success": True,
+                    "content": notice,
+                    "model": "legal-max-validator",
+                    "is_live_ai": False,
+                    "is_valid_legal": False
+                }
+
+        # 2. PII Redaction
         scrubbed_doc, pii_stats = pii_scrubber.scrub(document_text) if redact_pii else (document_text, {})
 
-        # 2. Build task-specific user prompts
+        # 3. Build task-specific user prompts
         user_prompt = cls._build_task_prompt(task_type, scrubbed_doc, prompt)
 
         # 3. Call Gemini if API Key is configured
@@ -171,6 +193,11 @@ DOCUMENT:
 
     @staticmethod
     def _get_deterministic_fallback(task_type: str, doc_text: str, custom_prompt: Optional[str]) -> str:
+        if doc_text and task_type in ["simplify", "scan", "summary", "compliance"]:
+            is_legal, detected_type, failure_reason = validate_legal_document(doc_text)
+            if not is_legal:
+                return get_non_legal_notice(detected_type, failure_reason or "Non-legal content")
+
         sample_preview = doc_text[:200] if doc_text else "General Legal Agreement"
 
         if task_type == "simplify":
