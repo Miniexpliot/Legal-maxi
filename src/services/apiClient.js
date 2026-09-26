@@ -49,7 +49,7 @@ export const checkBackendHealth = async () => {
   try {
     const res = await fetch(`${API_BASE}/health`, {
       headers: getAuthHeaders(),
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(12000)
     });
     if (!res.ok) throw new Error('Backend health check returned non-200');
     const data = await res.json();
