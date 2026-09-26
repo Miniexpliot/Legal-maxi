@@ -9,7 +9,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('legal_max_theme') || 'dark';
+    return localStorage.getItem('legal_max_theme') || 'light';
   });
 
   const [backendStatus, setBackendStatus] = useState({
@@ -96,6 +96,7 @@ This Independent Contractor Agreement is entered into by Client Co and Freelance
     localStorage.setItem('legal_max_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.body.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   useEffect(() => {

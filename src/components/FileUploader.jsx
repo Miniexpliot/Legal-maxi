@@ -58,10 +58,10 @@ const FileUploader = ({ onDocumentParsed, label = "Upload Legal Document" }) => 
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+        className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 backdrop-blur-md ${
           isDragging
-            ? 'border-indigo-500 bg-indigo-500/10 scale-[1.01]'
-            : 'border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/70'
+            ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40 scale-[1.01]'
+            : 'border-slate-300/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/40 hover:border-indigo-400 dark:hover:border-slate-700 hover:bg-white/95 dark:hover:bg-slate-900/70 shadow-xs'
         }`}
       >
         <input
@@ -72,20 +72,20 @@ const FileUploader = ({ onDocumentParsed, label = "Upload Legal Document" }) => 
         />
 
         {loading ? (
-          <div className="flex flex-col items-center gap-3 py-2 text-indigo-400">
+          <div className="flex flex-col items-center gap-3 py-2 text-indigo-600 dark:text-indigo-400">
             <Loader2 className="w-8 h-8 animate-spin" />
-            <p className="text-sm font-medium">Extracting document text ({fileName})...</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Extracting document text ({fileName})...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center text-center gap-2">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-1">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200/60 dark:border-indigo-800/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-1 shadow-xs">
               <Upload className="w-6 h-6" />
             </div>
-            <h4 className="text-sm font-semibold text-slate-200">{label}</h4>
-            <p className="text-xs text-slate-400 max-w-xs">
-              Drag and drop your PDF, TXT, or MD legal document here, or <span className="text-indigo-400 underline">browse files</span>
+            <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100">{label}</h4>
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xs leading-relaxed">
+              Drag and drop your PDF, Word, or contract text here, or <span className="text-indigo-600 dark:text-indigo-400 font-semibold underline">browse files</span>
             </p>
-            <span className="text-[10px] text-slate-500 mt-1">Supports PDF, TXT, Markdown • Max 10MB</span>
+            <span className="badge-pill text-[10px] text-slate-500 dark:text-slate-400 mt-1">Supports PDF, DOCX, TXT • Secure Client Parsing</span>
           </div>
         )}
       </label>

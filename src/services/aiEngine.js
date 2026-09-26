@@ -98,6 +98,11 @@ ${prompt}`;
         }
       } catch (err) {
         console.warn(`Client-side Gemini API call with ${modelName} failed:`, err.message);
+        if (err.message && (err.message.includes('429') || err.message.toLowerCase().includes('quota') || err.message.toLowerCase().includes('exhausted'))) {
+          const quotaErr = new Error('API quota limit reached. Please provide your own free Gemini API key.');
+          quotaErr.isQuota = true;
+          throw quotaErr;
+        }
       }
     }
   }

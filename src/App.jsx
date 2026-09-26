@@ -19,21 +19,21 @@ const AppLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-slate-950 text-slate-100 transition-colors">
+    <div className="flex flex-col md:flex-row min-h-screen text-slate-800 dark:text-slate-100 transition-colors duration-300 relative">
       {/* Mobile Top Header */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600/10 dark:bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
             <Scale className="w-5 h-5" />
           </div>
-          <span className="font-heading font-extrabold text-base tracking-tight text-white">
+          <span className="font-heading font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
             Legal<span className="gradient-text">-Max</span>
           </span>
         </div>
 
         <button
           onClick={() => setMobileMenuOpen(true)}
-          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60"
+          className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
           aria-label="Open mobile navigation menu"
         >
           <Menu className="w-5 h-5" />

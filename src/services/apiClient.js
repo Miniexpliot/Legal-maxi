@@ -86,14 +86,32 @@ export const analyzeDocument = async ({ taskType, documentText, prompt, model = 
       signal: AbortSignal.timeout(25000)
     });
 
+    if (res.status === 429) {
+      return {
+        content: '',
+        isLiveAi: false,
+        model: 'gemini-quota-reached',
+        piiRedacted: {},
+        source: 'backend',
+        isQuotaExceeded: true,
+        error: 'API Rate limit reached. Add your own free Gemini API key to continue.'
+      };
+    }
+
     if (res.ok) {
       const data = await res.json();
+      const isQuota = data.api_error && (
+        data.api_error.includes('429') || 
+        data.api_error.toLowerCase().includes('quota') || 
+        data.api_error.toLowerCase().includes('exhausted')
+      );
       return {
         content: data.content,
         isLiveAi: data.is_live_ai,
         model: data.model,
         piiRedacted: data.pii_redacted || {},
-        source: 'backend'
+        source: 'backend',
+        isQuotaExceeded: Boolean(isQuota)
       };
     }
   } catch (err) {
@@ -101,26 +119,43 @@ export const analyzeDocument = async ({ taskType, documentText, prompt, model = 
   }
 
   // Graceful fallback to client-side engine
-  const clientResult = await generateLegalAnalysis({
-    prompt,
-    documentText,
-    apiKey: userApiKey,
-    taskType
-  });
+  try {
+    const clientResult = await generateLegalAnalysis({
+      prompt,
+      documentText,
+      apiKey: userApiKey,
+      taskType
+    });
 
-  return {
-    content: clientResult,
-    isLiveAi: Boolean(userApiKey && userApiKey.length > 10),
-    model: userApiKey ? 'gemini-1.5-flash (client)' : 'legal-max-offline-engine',
-    piiRedacted: {},
-    source: 'client-fallback'
-  };
+    return {
+      content: clientResult,
+      isLiveAi: Boolean(userApiKey && userApiKey.length > 10),
+      model: userApiKey ? 'gemini-flash-latest (client)' : 'legal-max-offline-engine',
+      piiRedacted: {},
+      source: 'client-fallback',
+      isQuotaExceeded: false
+    };
+  } catch (clientErr) {
+    if (clientErr.isQuota || (clientErr.message && (clientErr.message.includes('429') || clientErr.message.toLowerCase().includes('quota')))) {
+      return {
+        content: '',
+        isLiveAi: false,
+        model: 'gemini-quota-reached',
+        piiRedacted: {},
+        source: 'client-fallback',
+        isQuotaExceeded: true
+      };
+    }
+    throw clientErr;
+  }
 };
 
 /**
  * Compare two contracts side-by-side
  */
 export const compareContracts = async ({ documentA, documentB, prompt }) => {
+  const userApiKey = getStoredApiKey();
+
   try {
     const res = await fetch(`${API_BASE}/compare`, {
       method: 'POST',
@@ -133,40 +168,73 @@ export const compareContracts = async ({ documentA, documentB, prompt }) => {
       signal: AbortSignal.timeout(25000)
     });
 
+    if (res.status === 429) {
+      return {
+        aiAnalysis: '',
+        diffMetrics: null,
+        isLiveAi: false,
+        source: 'backend',
+        isQuotaExceeded: true
+      };
+    }
+
     if (res.ok) {
       const data = await res.json();
+      const isQuota = data.api_error && (
+        data.api_error.includes('429') || 
+        data.api_error.toLowerCase().includes('quota') || 
+        data.api_error.toLowerCase().includes('exhausted')
+      );
       return {
         aiAnalysis: data.ai_analysis,
         diffMetrics: data.diff_metrics,
         isLiveAi: data.is_live_ai,
-        source: 'backend'
+        source: 'backend',
+        isQuotaExceeded: Boolean(isQuota)
       };
     }
   } catch (err) {
     console.info('Backend compare unavailable, running client fallback:', err.message);
   }
 
-  const analysis = await generateLegalAnalysis({
-    prompt: `Comparing Document A vs Document B:\n\n${prompt || ''}`,
-    documentText: `${documentA}\n\n=== VS ===\n\n${documentB}`,
-    taskType: 'compare'
-  });
+  try {
+    const analysis = await generateLegalAnalysis({
+      prompt: `Comparing Document A vs Document B:\n\n${prompt || ''}`,
+      documentText: `${documentA}\n\n=== VS ===\n\n${documentB}`,
+      apiKey: userApiKey,
+      taskType: 'compare'
+    });
 
-  return {
-    aiAnalysis: analysis,
-    diffMetrics: {
-      similarity_percentage: 75.0,
-      stats: { additions: 4, deletions: 2, unchanged: 18 }
-    },
-    isLiveAi: false,
-    source: 'client-fallback'
-  };
+    return {
+      aiAnalysis: analysis,
+      diffMetrics: {
+        similarity_percentage: 75.0,
+        stats: { additions: 4, deletions: 2, unchanged: 18 }
+      },
+      isLiveAi: Boolean(userApiKey && userApiKey.length > 10),
+      source: 'client-fallback',
+      isQuotaExceeded: false
+    };
+  } catch (clientErr) {
+    if (clientErr.isQuota || (clientErr.message && (clientErr.message.includes('429') || clientErr.message.toLowerCase().includes('quota')))) {
+      return {
+        aiAnalysis: '',
+        diffMetrics: null,
+        isLiveAi: false,
+        source: 'client-fallback',
+        isQuotaExceeded: true
+      };
+    }
+    throw clientErr;
+  }
 };
 
 /**
  * Grounded Q&A with citations
  */
 export const askLegalQuestion = async ({ documentText, question }) => {
+  const userApiKey = getStoredApiKey();
+
   try {
     const res = await fetch(`${API_BASE}/qa`, {
       method: 'POST',
@@ -178,31 +246,62 @@ export const askLegalQuestion = async ({ documentText, question }) => {
       signal: AbortSignal.timeout(20000)
     });
 
+    if (res.status === 429) {
+      return {
+        answer: '',
+        chunksIndexed: 0,
+        isLiveAi: false,
+        source: 'backend',
+        isQuotaExceeded: true
+      };
+    }
+
     if (res.ok) {
       const data = await res.json();
+      const isQuota = data.api_error && (
+        data.api_error.includes('429') || 
+        data.api_error.toLowerCase().includes('quota') || 
+        data.api_error.toLowerCase().includes('exhausted')
+      );
       return {
         answer: data.answer,
         chunksIndexed: data.chunks_indexed,
         isLiveAi: data.is_live_ai,
-        source: 'backend'
+        source: 'backend',
+        isQuotaExceeded: Boolean(isQuota)
       };
     }
   } catch (err) {
     console.info('Backend QA unavailable, falling back to client engine:', err.message);
   }
 
-  const clientAnswer = await generateLegalAnalysis({
-    prompt: question,
-    documentText,
-    taskType: 'qa'
-  });
+  try {
+    const clientAnswer = await generateLegalAnalysis({
+      prompt: question,
+      documentText,
+      apiKey: userApiKey,
+      taskType: 'qa'
+    });
 
-  return {
-    answer: clientAnswer,
-    chunksIndexed: 1,
-    isLiveAi: false,
-    source: 'client-fallback'
-  };
+    return {
+      answer: clientAnswer,
+      chunksIndexed: 1,
+      isLiveAi: Boolean(userApiKey && userApiKey.length > 10),
+      source: 'client-fallback',
+      isQuotaExceeded: false
+    };
+  } catch (clientErr) {
+    if (clientErr.isQuota || (clientErr.message && (clientErr.message.includes('429') || clientErr.message.toLowerCase().includes('quota')))) {
+      return {
+        answer: '',
+        chunksIndexed: 0,
+        isLiveAi: false,
+        source: 'client-fallback',
+        isQuotaExceeded: true
+      };
+    }
+    throw clientErr;
+  }
 };
 
 /**

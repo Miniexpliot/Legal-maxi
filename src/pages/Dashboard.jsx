@@ -5,228 +5,179 @@ import {
   GitCompare, 
   ShieldAlert, 
   MessageSquare, 
-  ListCheck, 
   BookOpen, 
-  Scale, 
-  FileCode2, 
   CheckCircle2, 
   Sparkles,
   ArrowRight,
   Shield,
-  Zap,
-  FolderOpen,
-  Server,
   Lock,
-  Volume2,
-  Calendar,
-  AlertTriangle,
-  Play,
-  Layers,
-  CheckCircle
+  ShieldCheck,
+  FileCode2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import FileUploader from '../components/FileUploader';
 import DisclaimerBanner from '../components/DisclaimerBanner';
 
-const featureCards = [
+// Streamlined, focused legal AI tools
+const coreWorkflows = [
   {
     path: '/simplify',
     title: 'Document Simplifier & Audio Explainer',
-    category: 'Simplification',
-    description: 'Converts complex contracts into ELI5 plain English, visual obligation maps, and text-to-speech audio.',
+    category: 'Analysis',
+    description: 'Deconstruct complex contracts into ELI5 plain English, obligation matrices, and natural audio briefings.',
     icon: FileText,
-    badge: 'Audio + Visual Maps',
-    color: 'from-indigo-500 to-blue-500'
+    badge: 'Plain English + Audio',
+    color: 'from-indigo-500 to-blue-600'
   },
   {
     path: '/compare',
     title: 'Contract Comparator & Redline Diff',
-    category: 'Comparison',
-    description: 'Side-by-side textual diffing, discrepancy matrix, and negotiation counter-clause redlines.',
+    category: 'Review',
+    description: 'Compare two contract versions side-by-side to pinpoint liability shifts, missing terms, and counter-clauses.',
     icon: GitCompare,
-    badge: 'Diff Metrics + Shifts',
-    color: 'from-purple-500 to-indigo-500'
+    badge: 'Redline & Liability Shifts',
+    color: 'from-purple-500 to-indigo-600'
   },
   {
     path: '/scan',
     title: 'Clause & Risk Scanner with Heatmap',
     category: 'Risk',
-    description: 'Audits agreements for liquidated damages, uncapped indemnities, and FTC non-compete compliance.',
+    description: 'Instant legal audit for hidden liquidated damages, non-competes, uncapped indemnity, and termination traps.',
     icon: ShieldAlert,
-    badge: 'Health Gauge (0-100)',
-    color: 'from-rose-500 to-amber-500'
+    badge: 'Contract Safety Gauge',
+    color: 'from-rose-500 to-amber-600'
   },
   {
     path: '/qa',
     title: 'Grounded Legal Q&A Assistant',
-    category: 'Intelligence',
-    description: 'Interrogate contracts with paragraph-level citations, anti-hallucination guardrails, and transcript export.',
+    category: 'Interrogation',
+    description: 'Interrogate any contract with paragraph-level citations, strict hallucination guardrails, and transcript export.',
     icon: MessageSquare,
-    badge: 'RAG Grounded Citations',
-    color: 'from-emerald-500 to-teal-500'
+    badge: 'Grounded RAG Citations',
+    color: 'from-emerald-500 to-teal-600'
   },
   {
-    path: '/summary',
-    title: 'Executive Briefs & Obligation Tracker',
-    category: 'Checklists',
-    description: 'Interactive compliance checklist with milestone progress bar and .ICS calendar reminder exports.',
-    icon: ListCheck,
-    badge: 'Interactive Tasks + .ICS',
-    color: 'from-cyan-500 to-blue-500'
+    path: '/compliance',
+    title: 'Regulatory & Privacy Compliance Audit',
+    category: 'Compliance',
+    description: 'Audit agreements against GDPR, DPDP, fair consumer contract laws, and mandatory termination windows.',
+    icon: CheckCircle2,
+    badge: 'Privacy & Terms Score',
+    color: 'from-cyan-500 to-blue-600'
   },
   {
     path: '/glossary',
     title: 'Plain-English Legal Glossary',
     category: 'Knowledge',
-    description: 'Searchable dictionary of 250+ legal terms with ELI5 definitions and AI-powered custom term explainer.',
+    description: 'Translate 250+ dense Latin and corporate legal terms into simple everyday explanations with AI term lookups.',
     icon: BookOpen,
     badge: '250+ Terms + AI Explainer',
-    color: 'from-amber-500 to-orange-500'
-  },
-  {
-    path: '/rights',
-    title: 'Rights Advisor & Attorney Prep Sheet',
-    category: 'Advisory',
-    description: '5-step dispute escalation ladder and printable 5-question attorney consultation intake sheets.',
-    icon: Scale,
-    badge: 'Attorney Consultation Sheet',
-    color: 'from-pink-500 to-rose-500'
-  },
-  {
-    path: '/templates',
-    title: 'Playbook Studio & Template Library',
-    category: 'Drafting',
-    description: 'Standard contract templates (NDAs, Freelance, Lease, Cease & Desist) with 1-click workspace ingestion.',
-    icon: FileCode2,
-    badge: 'Vetted Clauses & Forms',
-    color: 'from-indigo-500 to-violet-500'
-  },
-  {
-    path: '/compliance',
-    title: 'Automated Regulatory Compliance Audit',
-    category: 'Compliance',
-    description: 'Scorecard auditing agreements against GDPR/DPDP data privacy rules, notice periods, and consumer terms.',
-    icon: CheckCircle2,
-    badge: 'Privacy & Fair Terms',
-    color: 'from-emerald-500 to-indigo-500'
+    color: 'from-amber-500 to-orange-600'
   }
 ];
 
 const Dashboard = () => {
-  const { documents, activeDocument, setActiveDocId, addDocument, backendStatus, readingLevel, autoRedactPii } = useApp();
+  const { documents, activeDocument, setActiveDocId, addDocument, apiKey } = useApp();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const navigate = useNavigate();
 
-  const categories = ['All', 'Simplification', 'Comparison', 'Risk', 'Intelligence', 'Checklists', 'Advisory', 'Compliance'];
+  const categories = ['All', 'Analysis', 'Review', 'Risk', 'Interrogation', 'Compliance', 'Knowledge'];
 
   const filteredCards = selectedCategory === 'All'
-    ? featureCards
-    : featureCards.filter(c => c.category === selectedCategory);
+    ? coreWorkflows
+    : coreWorkflows.filter(c => c.category === selectedCategory);
 
   const activeDocHealth = activeDocument?.text?.includes('$250,000') ? 64 : 88;
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
-      {/* Top Enterprise Stats & Health Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
+      {/* Top User-Centric Reassurance Bar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+        <div className="glass-panel p-4 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Legal Intelligence</div>
-            <div className="text-base font-extrabold text-white flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span>55+ AI Features</span>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Privacy Guarantee</div>
+            <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 mt-0.5 font-heading">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span>Zero-Storage</span>
             </div>
           </div>
-          <span className="badge badge-indigo text-[10px]">Active</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Backend Engine</div>
-            <div className="text-base font-extrabold text-white flex items-center gap-1.5">
-              <Server className={`w-4 h-4 ${backendStatus.online ? 'text-emerald-400' : 'text-amber-400'}`} />
-              <span>{backendStatus.online ? 'FastAPI 2.0' : 'In-Browser'}</span>
-            </div>
-          </div>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${backendStatus.online ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}`}>
-            {backendStatus.online ? 'Connected' : 'Offline Mode'}
+          <span className="badge-pill text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800/60">
+            Local Browser
           </span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
+        <div className="glass-panel p-4 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Privacy & PII</div>
-            <div className="text-base font-extrabold text-white flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-emerald-400" />
-              <span>{autoRedactPii ? 'Auto-Redact ON' : 'Standard'}</span>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Intelligence Engine</div>
+            <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 mt-0.5 font-heading">
+              <Sparkles className="w-4 h-4 text-indigo-500" />
+              <span>Gemini AI</span>
             </div>
           </div>
-          <span className="badge badge-emerald text-[10px]">Zero Storage</span>
+          <span className="badge-pill text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800/60">
+            {apiKey ? 'Real-Time' : 'Demo Active'}
+          </span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
+        <div className="glass-panel p-4 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
-            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Persona Style</div>
-            <div className="text-base font-extrabold text-white flex items-center gap-1.5 capitalize">
-              <span>{readingLevel}</span>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Workspace Documents</div>
+            <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 mt-0.5 font-heading">
+              <FileText className="w-4 h-4 text-purple-500" />
+              <span>{documents.length} Agreements</span>
             </div>
           </div>
-          <span className="badge badge-primary text-[10px]">WCAG 2.1 AA</span>
+          <span className="badge-pill text-[10px] font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border-purple-200 dark:border-purple-800/60">
+            Ready
+          </span>
         </div>
-      </div>
 
-      {/* Hero Banner */}
-      <div className="glass-panel p-8 relative overflow-hidden border border-indigo-500/20 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/40">
-        <div className="absolute -right-12 -top-12 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="relative z-10 max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            Enterprise GenAI Legal Intelligence &amp; Document Review
+        <div className="glass-panel p-4 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl flex items-center justify-between shadow-xs">
+          <div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">Safety Assessment</div>
+            <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 mt-0.5 font-heading">
+              <Shield className={`w-4 h-4 ${activeDocHealth >= 80 ? 'text-emerald-500' : 'text-amber-500'}`} />
+              <span>{activeDocHealth}/100 Index</span>
+            </div>
           </div>
-
-          <h1 className="text-3xl md:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
-            Democratizing Legal Assistance with <span className="gradient-text">Legal-Max</span>
-          </h1>
-
-          <p className="text-sm md:text-base text-slate-300 leading-relaxed">
-            Understand complex contracts, detect buried penalty clauses, generate redline counter-proposals, and produce attorney-ready consultation sheets effortlessly.
-          </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-400">
-            <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-emerald-400" /> Client-Side Privacy Sanitizer</span>
-            <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-400" /> Grounded Gemini 1.5 Analysis</span>
-            <span className="flex items-center gap-1.5"><FolderOpen className="w-4 h-4 text-indigo-400" /> Multi-Document Workspace</span>
-          </div>
+          <span className={`badge-pill text-[10px] font-semibold ${
+            activeDocHealth >= 80 
+              ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800/60'
+              : 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800/60'
+          }`}>
+            {activeDocHealth >= 80 ? 'Low Risk' : 'Caution'}
+          </span>
         </div>
       </div>
 
       <DisclaimerBanner />
 
-      {/* Active Document Overview & Quick Launch Hub */}
+      {/* Active Document Overview & Quick Action Hub */}
       {activeDocument && (
-        <div className="glass-panel p-6 border border-slate-800 space-y-4">
+        <div className="glass-panel p-6 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Active Workspace Contract</div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2 mt-0.5">
-                <FileText className="w-5 h-5 text-indigo-400" />
+              <div className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Active Workspace Contract</div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mt-0.5 font-heading">
+                <FileText className="w-5 h-5 text-indigo-500" />
                 {activeDocument.name}
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Size: {activeDocument.size} • Uploaded: {new Date(activeDocument.uploadDate).toLocaleDateString()}
               </p>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-[11px] text-slate-400">Contract Safety Score</div>
-                <div className={`text-xl font-black ${activeDocHealth >= 80 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {activeDocHealth} / 100
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Contract Safety Score</div>
+                <div className={`text-2xl font-black font-heading ${activeDocHealth >= 80 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                  {activeDocHealth} <span className="text-xs text-slate-400 font-normal">/ 100</span>
                 </div>
               </div>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
-                activeDocHealth >= 80 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-xs ${
+                activeDocHealth >= 80 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60' 
+                  : 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60'
               }`}>
                 {activeDocHealth >= 80 ? '🟢' : '🟡'}
               </div>
@@ -234,57 +185,57 @@ const Dashboard = () => {
           </div>
 
           {/* Quick Action Buttons for Active Document */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
             <button
               onClick={() => navigate('/simplify')}
-              className="p-3 rounded-lg bg-indigo-950/40 border border-indigo-800/50 hover:bg-indigo-900/50 text-left transition-all group"
+              className="p-3.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/50 hover:bg-indigo-100/90 dark:hover:bg-indigo-900/50 text-left transition-all shadow-xs group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5" /> Simplify Document
+                <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-indigo-500" /> Simplify Plain English
                 </span>
-                <ArrowRight className="w-3 h-3 text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 text-indigo-500 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <div className="text-[10px] text-slate-400 mt-1">Translate to plain English + audio</div>
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">ELI5 summary + audio brief</div>
             </button>
 
             <button
               onClick={() => navigate('/scan')}
-              className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 hover:bg-rose-900/50 text-left transition-all group"
+              className="p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/50 hover:bg-rose-100/90 dark:hover:bg-rose-900/50 text-left transition-all shadow-xs group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-rose-300 flex items-center gap-1.5">
-                  <ShieldAlert className="w-3.5 h-3.5" /> Scan Risk Hazards
+                <span className="text-xs font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-rose-500" /> Scan Risk Hazards
                 </span>
-                <ArrowRight className="w-3 h-3 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 text-rose-500 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <div className="text-[10px] text-slate-400 mt-1">Audit penalty &amp; liability clauses</div>
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Audit penalties &amp; traps</div>
             </button>
 
             <button
-              onClick={() => navigate('/summary')}
-              className="p-3 rounded-lg bg-cyan-950/40 border border-cyan-800/50 hover:bg-cyan-900/50 text-left transition-all group"
+              onClick={() => navigate('/compare')}
+              className="p-3.5 rounded-xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/50 hover:bg-purple-100/90 dark:hover:bg-purple-900/50 text-left transition-all shadow-xs group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
-                  <ListCheck className="w-3.5 h-3.5" /> Action Checklist
+                <span className="text-xs font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                  <GitCompare className="w-3.5 h-3.5 text-purple-500" /> Compare Versions
                 </span>
-                <ArrowRight className="w-3 h-3 text-cyan-400 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 text-purple-500 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <div className="text-[10px] text-slate-400 mt-1">Track obligations &amp; export .ICS</div>
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Side-by-side redlines</div>
             </button>
 
             <button
               onClick={() => navigate('/qa')}
-              className="p-3 rounded-lg bg-emerald-950/40 border border-emerald-800/50 hover:bg-emerald-900/50 text-left transition-all group"
+              className="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/50 hover:bg-emerald-100/90 dark:hover:bg-emerald-900/50 text-left transition-all shadow-xs group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                  <MessageSquare className="w-3.5 h-3.5" /> Ask Questions
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-500" /> Ask Question
                 </span>
-                <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 text-emerald-500 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <div className="text-[10px] text-slate-400 mt-1">Grounded clause citations</div>
+              <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Verified clause citations</div>
             </button>
           </div>
         </div>
@@ -292,47 +243,57 @@ const Dashboard = () => {
 
       {/* Workspace Documents Management & Uploader */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 glass-panel p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-white flex items-center justify-between">
-            <span>Workspace Document Vault</span>
-            <span className="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full">{documents.length}</span>
-          </h3>
+        <div className="lg:col-span-1 glass-panel p-5 space-y-3.5 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white font-heading">
+              Workspace Document Vault
+            </h3>
+            <span className="badge-pill text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-200 dark:border-indigo-800/60">
+              {documents.length} Files
+            </span>
+          </div>
 
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {documents.map((doc) => (
               <button
                 key={doc.id}
                 onClick={() => setActiveDocId(doc.id)}
-                className={`w-full text-left p-3 rounded-lg border transition-all flex items-center justify-between ${
+                className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between shadow-2xs ${
                   activeDocument?.id === doc.id
-                    ? 'bg-indigo-600/20 border-indigo-500/40 text-white shadow-sm'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    ? 'bg-indigo-50/90 dark:bg-indigo-600/20 border-indigo-300 dark:border-indigo-500/40 text-slate-900 dark:text-white font-semibold'
+                    : 'bg-white/80 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/40'
                 }`}
               >
                 <div className="truncate pr-2">
-                  <p className="text-xs font-semibold truncate">{doc.name}</p>
-                  <p className="text-[10px] text-slate-500">{doc.size}</p>
+                  <p className="text-xs truncate">{doc.name}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{doc.size}</p>
                 </div>
                 {activeDocument?.id === doc.id && (
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400 shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400 shadow-sm shadow-indigo-500 shrink-0" />
                 )}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="lg:col-span-2 glass-panel p-5">
-          <h3 className="text-sm font-semibold text-white mb-3">Upload Agreement (PDF, DOCX, TXT)</h3>
+        <div className="lg:col-span-2 glass-panel p-5 border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3 font-heading">
+            Upload Legal Agreement (PDF, DOCX, TXT)
+          </h3>
           <FileUploader onDocumentParsed={(newDoc) => addDocument(newDoc)} />
         </div>
       </div>
 
-      {/* Categorized 55+ Features Suite */}
+      {/* Core Legal AI Workflows Suite */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-heading font-bold text-white">Full Legal Intelligence Suite (55+ Capabilities)</h2>
-            <p className="text-xs text-slate-400">Explore purpose-built legal AI tools audited against 30-day industry standards.</p>
+            <h2 className="text-lg font-heading font-extrabold text-slate-900 dark:text-white">
+              Core Legal AI Workflows
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              High-impact, verified legal AI tools designed for non-lawyers and professional teams.
+            </p>
           </div>
 
           {/* Category Filter Pills */}
@@ -341,10 +302,10 @@ const Dashboard = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`text-xs px-2.5 py-1 rounded-lg transition-all font-medium ${
+                className={`text-xs px-3 py-1.5 rounded-full transition-all font-semibold shadow-2xs ${
                   selectedCategory === cat
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-indigo-600 text-white shadow-indigo-600/25 scale-[1.02]'
+                    : 'bg-white/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {cat}
@@ -360,30 +321,29 @@ const Dashboard = () => {
               <Link
                 key={card.path}
                 to={card.path}
-                className="glass-panel p-5 group hover:-translate-y-1 hover:border-indigo-500/40 transition-all flex flex-col justify-between"
+                className="glass-panel p-5 group hover:-translate-y-1 hover:border-indigo-400/60 dark:hover:border-indigo-500/40 transition-all flex flex-col justify-between border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-sm"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} bg-opacity-20 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform`}>
+                    <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="text-[10px] font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+                    <span className="badge-pill text-[10px] font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800/60">
                       {card.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mb-2 font-heading">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white font-heading group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {card.title}
                   </h3>
-
-                  <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                     {card.description}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400 group-hover:text-indigo-300">
-                  <span>Launch Capability</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-0.5 transition-transform">
+                  <span>Open Tool</span>
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </Link>
             );

@@ -6,7 +6,6 @@ import {
   GitCompare, 
   ShieldAlert, 
   MessageSquare, 
-  ListCheck, 
   BookOpen, 
   Scale, 
   FileCode2, 
@@ -14,27 +13,26 @@ import {
   Settings, 
   Moon, 
   Sun, 
-  Key, 
+  Sparkles,
   ShieldCheck,
   X
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
+// Focused, streamlined core Legal AI workflows
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/simplify', label: 'Document Simplifier', icon: FileText },
   { path: '/compare', label: 'Contract Comparator', icon: GitCompare },
   { path: '/scan', label: 'Clause Scanner', icon: ShieldAlert },
-  { path: '/qa', label: 'Legal Q&A Chat', icon: MessageSquare },
-  { path: '/summary', label: 'Summary & Checklist', icon: ListCheck },
-  { path: '/glossary', label: 'Legal Glossary', icon: BookOpen },
-  { path: '/rights', label: 'Rights & Options', icon: Scale },
-  { path: '/templates', label: 'Template Library', icon: FileCode2 },
+  { path: '/qa', label: 'Legal Q&A Assistant', icon: MessageSquare },
   { path: '/compliance', label: 'Compliance Audit', icon: CheckCircle2 },
+  { path: '/glossary', label: 'Legal Glossary', icon: BookOpen },
+  { path: '/templates', label: 'Templates', icon: FileCode2 },
 ];
 
 const Sidebar = ({ mobileOpen, onClose }) => {
-  const { theme, toggleTheme, apiKey, backendStatus } = useApp();
+  const { theme, toggleTheme, apiKey } = useApp();
 
   return (
     <>
@@ -42,7 +40,7 @@ const Sidebar = ({ mobileOpen, onClose }) => {
       {mobileOpen && (
         <div 
           onClick={onClose} 
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-fade-in"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden animate-fade-in"
           aria-label="Close mobile navigation backdrop"
         />
       )}
@@ -50,56 +48,52 @@ const Sidebar = ({ mobileOpen, onClose }) => {
       {/* Sidebar Container */}
       <aside 
         style={{ width: '270px', minWidth: '270px' }} 
-        className={`glass-panel h-screen flex flex-col justify-between p-4 border-r border-slate-800 bg-slate-950/80 fixed md:sticky top-0 z-50 transition-transform duration-300 ease-in-out ${
+        className={`glass-panel h-screen flex flex-col justify-between p-4 border-r border-slate-200/90 dark:border-slate-800/90 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl fixed md:sticky top-0 z-50 transition-transform duration-300 ease-in-out ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         <div className="flex flex-col flex-1 min-h-0">
           {/* Brand Header */}
-          <div className="flex items-center justify-between px-2 py-3 mb-4 border-b border-slate-800/80 shrink-0">
+          <div className="flex items-center justify-between px-2 py-3 mb-3 border-b border-slate-200/80 dark:border-slate-800/80 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-lg shadow-indigo-500/20">
-                <Scale className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25">
+                <Scale className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-heading font-extrabold text-xl tracking-tight text-white flex items-center gap-1.5">
+                <h1 className="font-heading font-extrabold text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
                   Legal<span className="gradient-text">-Max</span>
                 </h1>
-                <p className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">GenAI Legal Assistant</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase">GenAI Legal Assistant</p>
               </div>
             </div>
 
             {/* Mobile Close Button */}
             <button
               onClick={onClose}
-              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60"
+              className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
               aria-label="Close navigation"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* API Key & Backend Status Indicators */}
-          <div className="space-y-1.5 mb-3 shrink-0">
-            <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2 text-slate-400">
-                <Key className="w-3.5 h-3.5 text-indigo-400" />
-                Gemini API
-              </span>
-              {apiKey ? (
-                <span className="badge badge-emerald py-0.5 px-2 text-[10px]">Connected</span>
-              ) : (
-                <span className="badge badge-amber py-0.5 px-2 text-[10px]">Demo Mode</span>
-              )}
+          {/* Privacy & AI Trust Badge */}
+          <div className="mb-3 shrink-0 space-y-1.5">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 flex items-center gap-2.5 shadow-xs">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <div className="leading-tight">
+                <p className="text-[11px] font-bold text-slate-800 dark:text-emerald-300">100% Client-Private</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400">Stored locally in your browser</p>
+              </div>
             </div>
 
-            <div className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2 text-slate-400">
-                <span className={`w-2 h-2 rounded-full ${backendStatus?.online ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-                FastAPI Server
+            <div className="px-3 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                Gemini AI
               </span>
-              <span className={`text-[10px] font-mono ${backendStatus?.online ? 'text-emerald-400' : 'text-slate-400'}`}>
-                {backendStatus?.online ? 'Online' : 'Offline'}
+              <span className="badge-pill text-[10px] font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800">
+                {apiKey ? 'Active' : 'Demo Mode'}
               </span>
             </div>
           </div>
@@ -114,10 +108,10 @@ const Sidebar = ({ mobileOpen, onClose }) => {
                   to={item.path}
                   onClick={() => onClose && onClose()}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-sm font-semibold'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-500/30 font-semibold shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/70 dark:hover:bg-slate-900/60'
                     }`
                   }
                 >
@@ -129,38 +123,34 @@ const Sidebar = ({ mobileOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* Footer / Settings & Theme Toggle */}
-        <div className="pt-3 border-t border-slate-800/80 space-y-2 shrink-0">
+        {/* Footer: Settings & Theme Toggle */}
+        <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-1.5 shrink-0">
           <NavLink
             to="/settings"
             onClick={() => onClose && onClose()}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 isActive
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-900/60'
               }`
             }
           >
             <Settings className="w-4 h-4" />
-            <span>Settings</span>
+            <span>Settings & Keys</span>
           </NavLink>
 
           <button
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-all border border-transparent hover:border-slate-800"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-all border border-slate-200/70 dark:border-slate-800"
           >
-            <span className="flex items-center gap-3">
-              {theme === 'dark' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
-              <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+            <span className="flex items-center gap-2.5">
+              {theme === 'dark' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+              <span>{theme === 'dark' ? 'Dark Theme' : 'Light Theme'}</span>
             </span>
-            <span className="text-[10px] font-mono uppercase text-slate-500 px-1.5 py-0.5 rounded bg-slate-800/50">{theme}</span>
+            <span className="badge-pill text-[10px] uppercase font-mono">{theme}</span>
           </button>
-
-          <div className="px-3 pt-1 text-[10px] text-slate-500 text-center flex items-center justify-center gap-1">
-            <ShieldCheck className="w-3 h-3 text-emerald-400" /> Client-Side Confidential
-          </div>
         </div>
       </aside>
     </>
