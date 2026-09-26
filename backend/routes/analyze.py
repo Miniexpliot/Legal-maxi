@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, UploadFile, File
 from pydantic import BaseModel, Field
 from typing import Optional
 from ..config import resolve_api_key
@@ -30,3 +30,29 @@ async def analyze_legal_document(req: AnalyzeRequest, x_gemini_key: Optional[str
     )
 
     return result
+
+@router.post("/parse-file")
+async def parse_uploaded_file(file: UploadFile = File(...)):
+    try:
+        from ..services.doc_parser import doc_parser
+        content = await file.read()
+        filename = (file.filename or "").lower()
+
+        if filename.endswith(".pdf") or file.content_type == "application/pdf":
+            text = doc_parser.extract_text_from_pdf(content)
+        elif filename.endswith((".docx", ".doc")):
+            text = doc_parser.extract_text_from_docx(content)
+        else:
+            try:
+                text = content.decode("utf-8")
+            except UnicodeDecodeError:
+                text = content.decode("latin-1", errors="ignore")
+
+        return {
+            "success": True,
+            "filename": file.filename,
+            "text": text,
+            "length": len(text)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse file: {str(e)}")
