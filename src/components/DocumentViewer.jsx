@@ -21,6 +21,21 @@ const DocumentViewer = ({ document, height = "400px" }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const renderHighlightedText = () => {
+    if (!searchTerm.trim()) return document.text;
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})`, 'gi');
+    const parts = document.text.split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-amber-400/30 text-amber-200 px-0.5 rounded font-bold">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div className="glass-panel flex flex-col overflow-hidden border border-slate-800" style={{ height }}>
       {/* Header */}
@@ -56,7 +71,7 @@ const DocumentViewer = ({ document, height = "400px" }) => {
 
       {/* Document Text Body */}
       <div className="p-4 overflow-y-auto font-mono text-xs text-slate-300 bg-slate-950/60 leading-relaxed whitespace-pre-wrap flex-1 select-text">
-        {document.text}
+        {renderHighlightedText()}
       </div>
     </div>
   );

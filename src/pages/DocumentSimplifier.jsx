@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Markdown from 'react-markdown';
+import LegalMarkdown from '../components/LegalMarkdown';
 import { FileText, Sparkles, Volume2, VolumeX, ShieldCheck, CheckSquare, AlertTriangle, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { analyzeDocument } from '../services/apiClient';
@@ -188,8 +188,8 @@ const DocumentSimplifier = () => {
                 </div>
               </div>
 
-              <div className="markdown-body text-xs text-slate-300 overflow-y-auto max-h-[520px] pr-2">
-                <Markdown>{output}</Markdown>
+              <div className="overflow-y-auto max-h-[520px] pr-2">
+                <LegalMarkdown content={output} />
               </div>
             </div>
           ) : (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Search, Sparkles } from 'lucide-react';
+import LegalMarkdown from '../components/LegalMarkdown';
 import { LEGAL_GLOSSARY } from '../utils/constants';
 import { useApp } from '../context/AppContext';
 import { analyzeDocument } from '../services/apiClient';
@@ -81,7 +82,7 @@ const LegalGlossary = () => {
         {customExplanation && (
           <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 leading-relaxed space-y-2 mt-2">
             <p className="font-semibold text-indigo-300">Explanation for "{customTerm}":</p>
-            <p className="whitespace-pre-wrap">{customExplanation}</p>
+            <LegalMarkdown content={customExplanation} />
           </div>
         )}
       </div>

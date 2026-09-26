@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Markdown from 'react-markdown';
+import LegalMarkdown from '../components/LegalMarkdown';
 import { MessageSquare, Send, Sparkles, User, Bot, Trash2, ShieldCheck, Download, BookmarkCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { askLegalQuestion } from '../services/apiClient';
@@ -178,9 +178,7 @@ const LegalQA = () => {
                       <span>{msg.timestamp}</span>
                     </div>
 
-                    <div className="markdown-body">
-                      <Markdown>{msg.text}</Markdown>
-                    </div>
+                    <LegalMarkdown content={msg.text} />
 
                     {msg.sender === 'bot' && msg.source && (
                       <div className="mt-2 pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">

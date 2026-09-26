@@ -8,6 +8,7 @@ const TemplateLibrary = () => {
   const { addDocument } = useApp();
   const [selectedTemplate, setSelectedTemplate] = useState(CONTRACT_TEMPLATES[0]);
   const [copied, setCopied] = useState(false);
+  const [addedToast, setAddedToast] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(selectedTemplate.content);
@@ -25,7 +26,8 @@ const TemplateLibrary = () => {
       text: selectedTemplate.content
     };
     addDocument(newDoc);
-    alert(`"${selectedTemplate.title}" added to active workspace documents!`);
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 3000);
   };
 
   return (
@@ -75,6 +77,11 @@ const TemplateLibrary = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              {addedToast && (
+                <span className="badge badge-emerald py-1 px-2.5 text-[10px] animate-fade-in flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Added to Vault
+                </span>
+              )}
               <button onClick={handleCopy} className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5">
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-indigo-400" />}
                 <span>{copied ? 'Copied' : 'Copy Template'}</span>

@@ -95,6 +95,7 @@ This Independent Contractor Agreement is entered into by Client Co and Freelance
   useEffect(() => {
     localStorage.setItem('legal_max_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   useEffect(() => {

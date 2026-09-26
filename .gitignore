@@ -27,3 +27,7 @@ pnpm-debug.log*
 .env
 .env.local
 .env.production
+
+# Python / Test artifacts
+.pytest_cache/
+__pycache__/

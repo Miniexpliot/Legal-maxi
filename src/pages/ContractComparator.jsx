@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Markdown from 'react-markdown';
+import LegalMarkdown from '../components/LegalMarkdown';
 import { GitCompare, Sparkles, Check, ArrowRight, Percent, PlusCircle, MinusCircle, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { compareContracts } from '../services/apiClient';
@@ -170,8 +170,8 @@ const ContractComparator = () => {
             <LoadingSpinner label="Comparing contractual obligations, indemnities & liability limits..." />
           </div>
         ) : output ? (
-          <div className="markdown-body text-xs text-slate-300">
-            <Markdown>{output}</Markdown>
+          <div className="overflow-x-auto">
+            <LegalMarkdown content={output} />
           </div>
         ) : (
           <div className="py-12 flex flex-col items-center justify-center text-slate-500 text-xs">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Markdown from 'react-markdown';
+import LegalMarkdown from '../components/LegalMarkdown';
 import { Scale, Sparkles, HelpCircle, FileCheck, Layers, ExternalLink, Printer } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { analyzeDocument } from '../services/apiClient';
@@ -167,8 +167,8 @@ const RightsAdvisor = () => {
               <LoadingSpinner label="Evaluating remedies, statutory rights & drafting consultation sheet..." />
             </div>
           ) : output ? (
-            <div className="markdown-body text-xs text-slate-300 overflow-y-auto max-h-[560px] pr-2">
-              <Markdown>{output}</Markdown>
+            <div className="overflow-y-auto max-h-[560px] pr-2">
+              <LegalMarkdown content={output} />
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500 py-12">
